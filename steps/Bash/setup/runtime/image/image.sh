@@ -11,11 +11,52 @@ boot_container() {
     exit $exit_code
   }
 
+  local pullCommand="docker pull $DOCKER_IMAGE"
+  local dockerRegistry="%%context.registry%%"
+  if [ ! -z "$dockerRegistry" ]; then
+    local intMasterName=$(eval echo "$"int_"$dockerRegistry"_masterName)
+
+    if [ "$intMasterName" == "dockerRegistryLogin" ]; then
+      local userName=$(eval echo "$"int_"$dockerRegistry"_username)
+      local password=$(eval echo "$"int_"$dockerRegistry"_password)
+      local url=$(eval echo "$"int_"$dockerRegistry"_url)
+
+      retry_command docker login -u "$userName" -p "$password" "$url"
+    elif [ "$intMasterName" == "amazonKeys" ]; then
+      local accessKeyId=$(eval echo "$"int_"$dockerRegistry"_accessKeyId)
+      local secretAccessKey=$(eval echo "$"int_"$dockerRegistry"_secretAccessKey)
+      local region="%%context.region%%"
+
+      aws configure set aws_access_key_id "$accessKeyId"
+      aws configure set aws_secret_access_key "$secretAccessKey"
+      aws configure set region "$region"
+
+      retry_command $(aws ecr get-login --no-include-email)
+    elif [ "$intMasterName" == "gcloudKey" ]; then
+      local jsonKey=$(eval echo "$"int_"$dockerRegistry"_jsonKey)
+      local projectId="$( echo "$jsonKey" | jq -r '.project_id' )"
+
+      touch key.json
+      echo "$jsonKey" > key.json
+      gcloud -q auth activate-service-account --key-file "key.json"
+      gcloud config set project "$projectId"
+      gcloud docker -a
+    elif [ "$intMasterName" == "artifactory" ]; then
+      local url=$(eval echo "$"int_"$dockerRegistry"_url)
+      local user=$(eval echo "$"int_"$dockerRegistry"_user)
+      local apiKey=$(eval echo "$"int_"$dockerRegistry"_apikey)
+      local sourceRepository="%%context.sourceRepository%%"
+
+      jfrog rt config --url "$url" --user "$user" --apikey "$apiKey" --interactive=false
+      pullCommand="jfrog rt docker-pull $DOCKER_IMAGE $sourceRepository"
+    fi
+  fi
+
   local image_autopull="%%context.autoPull%%"
 
   if [ "$image_autopull" == "true" ]; then
     start_group "Pulling Image"
-    execute_command "docker pull $DOCKER_IMAGE"
+    execute_command "$pullCommand"
     stop_group
   fi
 
