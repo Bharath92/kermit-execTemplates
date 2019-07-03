@@ -27,6 +27,9 @@ boot_container() {
       local secretAccessKey=$(eval echo "$"int_"$dockerRegistry"_secretAccessKey)
       local region="%%context.region%%"
 
+      export AWS_SHARED_CREDENTIALS_FILE=$step_workspace_dir/.aws/credentials
+      export AWS_CONFIG_FILE=$step_workspace_dir/.aws/config
+
       aws configure set aws_access_key_id "$accessKeyId"
       aws configure set aws_secret_access_key "$secretAccessKey"
       aws configure set region "$region"
@@ -80,8 +83,10 @@ boot_container() {
       local url=$(eval echo "$"int_"$dockerRegistry"_url)
       docker logout "$url"
     elif [ "$intMasterName" == "amazonKeys" ]; then
-      rm /root/.aws/credentials
-      rm /root/.aws/config
+      unset AWS_SHARED_CREDENTIALS_FILE
+      unset AWS_CONFIG_FILE
+      rm $step_workspace_dir/.aws/credentials
+      rm $step_workspace_dir/.aws/config
     elif [ "$intMasterName" == "gcloudKey" ]; then
       local jsonKey=$(eval echo "$"int_"$dockerRegistry"_jsonKey)
       local email="$( echo "$jsonKey" | jq -r '.client_email' )"
