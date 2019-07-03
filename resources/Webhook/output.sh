@@ -9,11 +9,18 @@ post_webhook_url() {
     if [ -s $filePath ]; then
       local webhookURL=$(eval echo "$"res_"$resourceName"_"$integrationAlias"_webhookURL)
       local authorization=$(eval echo "$"res_"$resourceName"_"$integrationAlias"_authorization)
-      local data=$(cat $filePath)
+      local data="{}"
+
+      while read -r line; do
+        key="$(awk -F'=' '{print $1}' <<<"$line")"
+        value="$(awk -F'=' '{print $2}' <<<"$line")"
+        value=$(echo "$value" | sed "s/\"/\\\\\"/g")
+        data=$(echo $data | jq ". + {$key: \"$value\"}")
+      done < $filePath
 
       curl -X POST \
         -H  "Authorization: $authorization" \
-        -H "Content-Type: text/plain" --data "$data" \
+        -H "Content-Type: application/json" --data "$data" \
         $webhookURL
     fi
   fi
