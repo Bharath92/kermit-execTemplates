@@ -115,6 +115,9 @@
                         "sourceRepository": {
                           "type": "string"
                         },
+                        "region": {
+                          "type": "string"
+                        },                        
                         "options": {
                           "type": "string"
                         },
