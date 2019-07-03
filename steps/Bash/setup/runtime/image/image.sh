@@ -27,6 +27,9 @@ boot_container() {
       local secretAccessKey=$(eval echo "$"int_"$dockerRegistry"_secretAccessKey)
       local region="%%context.region%%"
 
+      export AWS_SHARED_CREDENTIALS_FILE=$step_workspace_dir/.aws/credentials
+      export AWS_CONFIG_FILE=$step_workspace_dir/.aws/config
+
       aws configure set aws_access_key_id "$accessKeyId"
       aws configure set aws_secret_access_key "$secretAccessKey"
       aws configure set region "$region"
@@ -47,7 +50,8 @@ boot_container() {
       local apiKey=$(eval echo "$"int_"$dockerRegistry"_apikey)
       local sourceRepository="%%context.sourceRepository%%"
 
-      jfrog rt config --url "$url" --user "$user" --apikey "$apiKey" --interactive=false
+      jfrog rt config --url "$url" --user "$user" --apikey "$apiKey" --interactive=false $dockerRegistry
+      jfrog rt use $dockerRegistry
       pullCommand="jfrog rt docker-pull $DOCKER_IMAGE $sourceRepository"
     fi
   fi
@@ -73,6 +77,24 @@ boot_container() {
     bash -c \"$reqexec_bin_path $steplet_script_path steplet.env\""
 
   execute_command "$docker_run_cmd"
+
+  if [ ! -z "$dockerRegistry" ]; then
+    if [ "$intMasterName" == "dockerRegistryLogin" ]; then
+      local url=$(eval echo "$"int_"$dockerRegistry"_url)
+      docker logout "$url"
+    elif [ "$intMasterName" == "amazonKeys" ]; then
+      unset AWS_SHARED_CREDENTIALS_FILE
+      unset AWS_CONFIG_FILE
+      rm $step_workspace_dir/.aws/credentials
+      rm $step_workspace_dir/.aws/config
+    elif [ "$intMasterName" == "gcloudKey" ]; then
+      local jsonKey=$(eval echo "$"int_"$dockerRegistry"_jsonKey)
+      local email="$( echo "$jsonKey" | jq -r '.client_email' )"
+      gcloud auth revoke $email
+    elif [ "$intMasterName" == "artifactory" ]; then
+      jfrog rt config delete $dockerRegistry --interactive=false
+    fi
+  fi
 
   stop_group
 
