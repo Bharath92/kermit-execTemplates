@@ -21,37 +21,39 @@ boot_container() {
       local password=$(eval echo "$"int_"$dockerRegistry"_password)
       local url=$(eval echo "$"int_"$dockerRegistry"_url)
 
-      retry_command docker login -u "$userName" -p "$password" "$url"
+      retry_command docker login -u "$userName" -p "$password" "$url" &> /dev/null
     elif [ "$intMasterName" == "amazonKeys" ]; then
       local accessKeyId=$(eval echo "$"int_"$dockerRegistry"_accessKeyId)
       local secretAccessKey=$(eval echo "$"int_"$dockerRegistry"_secretAccessKey)
       local region="%%context.region%%"
 
-      export AWS_SHARED_CREDENTIALS_FILE=$step_workspace_dir/.aws/credentials
-      export AWS_CONFIG_FILE=$step_workspace_dir/.aws/config
+      export SETUP_AWS_SHARED_CREDENTIALS="$step_workspace_dir/$dockerRegistry"/.aws/credentials
+      export SETUP_AWS_CONFIG="$step_workspace_dir/$dockerRegistry"/.aws/config
 
       aws configure set aws_access_key_id "$accessKeyId"
       aws configure set aws_secret_access_key "$secretAccessKey"
       aws configure set region "$region"
 
-      retry_command $(aws ecr get-login --no-include-email)
+      retry_command $(aws ecr get-login --no-include-email) &> /dev/null
     elif [ "$intMasterName" == "gcloudKey" ]; then
       local jsonKey=$(eval echo "$"int_"$dockerRegistry"_jsonKey)
       local projectId="$( echo "$jsonKey" | jq -r '.project_id' )"
 
-      touch key.json
-      echo "$jsonKey" > key.json
-      gcloud -q auth activate-service-account --key-file "key.json"
-      gcloud config set project "$projectId"
-      gcloud docker -a
+      mkdir -p $step_tmp_dir/$dockerRegistry
+      local keyFile="$step_tmp_dir/$dockerRegistry/$dockerRegistry.json"
+      touch $keyFile
+      echo "$jsonKey" > $keyFile
+      gcloud -q auth activate-service-account --key-file "$keyFile" &> /dev/null
+      gcloud config set project "$projectId" &> /dev/null
+      gcloud docker -a &> /dev/null
     elif [ "$intMasterName" == "artifactory" ]; then
       local url=$(eval echo "$"int_"$dockerRegistry"_url)
       local user=$(eval echo "$"int_"$dockerRegistry"_user)
       local apiKey=$(eval echo "$"int_"$dockerRegistry"_apikey)
       local sourceRepository="%%context.sourceRepository%%"
 
-      jfrog rt config --url "$url" --user "$user" --apikey "$apiKey" --interactive=false $dockerRegistry
-      jfrog rt use $dockerRegistry
+      jfrog rt config --url "$url" --user "$user" --apikey "$apiKey" --interactive=false $dockerRegistry &> /dev/null
+      jfrog rt use $dockerRegistry &> /dev/null
       pullCommand="jfrog rt docker-pull $DOCKER_IMAGE $sourceRepository"
     fi
   fi
@@ -83,14 +85,31 @@ boot_container() {
       local url=$(eval echo "$"int_"$dockerRegistry"_url)
       docker logout "$url"
     elif [ "$intMasterName" == "amazonKeys" ]; then
-      unset AWS_SHARED_CREDENTIALS_FILE
-      unset AWS_CONFIG_FILE
-      rm $step_workspace_dir/.aws/credentials
-      rm $step_workspace_dir/.aws/config
+      local region="%%context.region%%"
+      local awsAccountId=$(aws sts get-caller-identity --query 'Account' --output text)
+      unset SETUP_AWS_SHARED_CREDENTIALS
+      unset SETUP_AWS_CONFIG
+      if [ -f $step_workspace_dir/$dockerRegistry/.aws/credentials ]; then
+        rm "$step_workspace_dir/$dockerRegistry"/.aws/credentials
+      fi
+      if [ -f $step_workspace_dir/$dockerRegistry/.aws/config ]; then
+        rm "$step_workspace_dir/$dockerRegistry"/.aws/config
+      fi
+      docker logout "$awsAccountId.dkr.ecr.$region.amazonaws.com"
     elif [ "$intMasterName" == "gcloudKey" ]; then
       local jsonKey=$(eval echo "$"int_"$dockerRegistry"_jsonKey)
       local email="$( echo "$jsonKey" | jq -r '.client_email' )"
       gcloud auth revoke $email
+      if [ -f $step_tmp_dir/$dockerRegistry/$dockerRegistry.json ]; then
+        rm $step_tmp_dir/$dockerRegistry/$dockerRegistry.json
+      fi
+
+      docker logout gcr.io
+      docker logout eu.gcr.io
+      docker logout us.gcr.io
+      docker logout asia.gcr.io
+      docker logout marketplace.gcr.io
+      docker logout staging-k8s.gcr.io
     elif [ "$intMasterName" == "artifactory" ]; then
       jfrog rt config delete $dockerRegistry --interactive=false
     fi
