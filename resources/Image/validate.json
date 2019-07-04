@@ -28,6 +28,9 @@
         },
         "autoPull": {
           "type": "boolean"
+        },
+        "region": {
+          "type": "string"
         }
       },
       "required": ["registry", "imageName", "imageTag"]
