@@ -277,7 +277,7 @@ CreateReleaseBundle() {
   releaseBundleVersionVar=$(jq -r ".step.configuration.releaseBundleVersion" $step_json_path)
   dryRun=$(jq -r ".step.configuration.dryRun" $step_json_path)
   if [ -z "$dryRun" ] || [ "$dryRun" == "null" ]; then
-    $dryRun=true
+    dryRun=true
   fi
   releaseBundleName=$(eval echo "$releaseBundleNameVar")
   releaseBundleVersion=$(eval echo "$releaseBundleVersionVar")
