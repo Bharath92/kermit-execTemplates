@@ -270,7 +270,14 @@ CreateReleaseBundle() {
   authenticate $buildInfo0
 
   echo -e "\n[CreateReleaseBundle] Getting Artifactory service id"
-  local artifactoryServiceId=$(getArtifactoryServiceId)
+  local serviceIdResult=$(getArtifactoryServiceId)
+  local artifactoryServiceId=""
+  if (echo "$serviceIdResult" | jq .errors > /dev/null); then
+    echo -e "\n[CreateReleaseBundle] Failed to get Artifactory service id with error: $serviceIdResult"
+    exit 1
+  else
+    artifactoryServiceId="$serviceIdResult"
+  fi
 
   # TODO: fix this when setup section gets exported as envs
   releaseBundleNameVar=$(jq -r ".step.configuration.releaseBundleName" $step_json_path)
