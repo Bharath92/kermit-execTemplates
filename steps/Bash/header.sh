@@ -807,7 +807,7 @@ send_notification() {
 
   export opt_username="$NOTIFY_USERNAME"
   if [ -z "$opt_username" ]; then
-    opt_username="Shippable"
+    opt_username="JFrog Pipelines"
   fi
 
   export opt_password="$NOTIFY_PASSWORD"
