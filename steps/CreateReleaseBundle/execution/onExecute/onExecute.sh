@@ -272,7 +272,7 @@ CreateReleaseBundle() {
   echo -e "\n[CreateReleaseBundle] Getting Artifactory service id"
   local serviceIdResult=$(getArtifactoryServiceId)
   local artifactoryServiceId=""
-  if (echo "$serviceIdResult" | jq .errors > /dev/null); then
+  if (echo "$serviceIdResult" | jq .errors &> /dev/null); then
     echo -e "\n[CreateReleaseBundle] Failed to get Artifactory service id with error: $serviceIdResult"
     exit 1
   else
