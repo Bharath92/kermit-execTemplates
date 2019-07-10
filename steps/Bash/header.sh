@@ -1054,6 +1054,11 @@ send_notification() {
         shift
         shift
         ;;
+      --status)
+        opt_status="$2"
+        shift
+        shift
+        ;;
       --recipients)
         shift
         while [ $# -gt 0 ] && [[ "$1" != --* ]]; do
