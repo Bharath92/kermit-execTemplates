@@ -114,7 +114,7 @@
                         },
                         "region": {
                           "type": "string"
-                        },                        
+                        },
                         "options": {
                           "type": "string"
                         },
@@ -130,10 +130,17 @@
             "additionalProperties": false
           },
           "else": {
-            "properties": {
-              "type": { "enum": ["host"] }
+            "if": {
+              "properties": {
+                "type": { "enum": ["host"] }
+              }
             },
-            "additionalProperties": false
+            "then": {
+              "properties": {
+                "type": { "enum": ["host"] }
+              },
+              "additionalProperties": false
+            }
           }
         },
         "integrations": {
