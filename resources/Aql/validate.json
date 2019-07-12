@@ -13,6 +13,7 @@
     },
     "configuration": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "sourceArtifactory": {
           "type": "string"
