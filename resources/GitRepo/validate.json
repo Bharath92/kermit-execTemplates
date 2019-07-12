@@ -23,6 +23,7 @@
         },
         "files": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "include": {
               "type": "string",
@@ -36,6 +37,7 @@
         },
         "branches": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "include": {
               "type": "string",
@@ -49,6 +51,7 @@
         },
         "tags": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "include": {
               "type": "string",
@@ -62,6 +65,7 @@
         },
         "buildOn": {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "commit": {
               "type": "boolean"
