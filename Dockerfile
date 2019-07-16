@@ -1,4 +1,4 @@
-FROM ${MICRO_NAME}/${MICRO_TAG}
+FROM ${MICRO_NAME}:${MICRO_TAG}
 
 ADD . /jfrog/execTemplates
 
