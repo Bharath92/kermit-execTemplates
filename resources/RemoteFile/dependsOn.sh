@@ -56,6 +56,9 @@ get_file() {
         ftp -n < $ftpScriptFileName
         rm -f $ftpScriptFileName
         popd
+      else
+        echo "$resourceName contains a File Server integration with an unsupported protocol: $fsProtocol"
+        exit 1
       fi
     fi
     echo "Successfully fetched file"
