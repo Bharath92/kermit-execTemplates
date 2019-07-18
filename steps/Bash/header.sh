@@ -2320,7 +2320,7 @@ execute_command() {
   # If cmd output has no newline at end, marker parsing
   # would break. Hence force a newline before the marker.
   echo ""
-  local cmd_first_line=$(printf "$cmd" | head -n 1)
+  local cmd_first_line=$(echo "$cmd" | head -n 1)
   echo "__SH__CMD__END__|{\"type\":\"cmd\",\"sequenceNumber\":\"$cmd_start_timestamp\",\"id\":\"$cmd_uuid\",\"exitcode\":\"$cmd_status\"}|$cmd_first_line"
 
   trap before_exit EXIT
