@@ -33,6 +33,8 @@ get_file() {
       specs='{}'
       if [ ! -z "$pattern" ]; then
         specs=$(echo $specs | jq --arg pattern $pattern '. + {pattern: $pattern}')
+        echo "Searching for artifacts in the given path: "$pattern
+        jfrog rt s --fail-no-op $pattern
       fi
 
       if [ ! -z "$aql" ]; then
