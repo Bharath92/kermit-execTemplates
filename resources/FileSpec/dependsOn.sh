@@ -33,8 +33,6 @@ get_file() {
       specs='{}'
       if [ ! -z "$pattern" ]; then
         specs=$(echo $specs | jq --arg pattern $pattern '. + {pattern: $pattern}')
-        echo "Searching for artifacts in the given path: "$pattern
-        jfrog rt s --fail-no-op $pattern
       fi
 
       if [ ! -z "$aql" ]; then
@@ -88,7 +86,7 @@ get_file() {
       fileSpecs=$(echo $fileSpecs | jq --argjson json "$specs" '.files += [ $json ]')
       echo $fileSpecs | jq . > $step_tmp_dir/fileSpecs.json
       pushd $resourcePath
-      jfrog rt dl --build-name=$pipeline_name --build-number=$run_number --spec $step_tmp_dir/fileSpecs.json
+      jfrog rt dl --fail-no-op --build-name=$pipeline_name --build-number=$run_number --spec $step_tmp_dir/fileSpecs.json
       popd
     fi
     echo "Successfully fetched file"
