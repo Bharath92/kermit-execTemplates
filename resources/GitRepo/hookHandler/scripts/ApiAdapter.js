@@ -222,6 +222,13 @@ ApiAdapter.prototype.getProjectIntegrationById =
     this.get(url, callback);
   };
 
+// providers
+ApiAdapter.prototype.getProviderById =
+  function (providerId, callback) {
+    var url = '/providers/' + providerId;
+    this.get(url, callback);
+  };
+
 // resources
 ApiAdapter.prototype.getResourceById =
   function (resourceId, callback) {
