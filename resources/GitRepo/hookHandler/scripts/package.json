@@ -8,8 +8,11 @@
   },
   "dependencies": {
     "async": "2.0.0",
+    "email-addresses": "3.0.3",
     "fs-extra": "0.30.0",
+    "remove-markdown": "0.1.0",
     "request": "2.88.0",
+    "parse-links": "0.1.0",
     "underscore": "1.8.3",
     "ursa": "0.9.4",
     "util": "0.10.3",
