@@ -1,5 +1,5 @@
 {
-  "name": "pipelines.hookHandler",
+  "name": "pipelines.pipelineSync.GitRepo",
   "license": "UNLICENSED",
   "private": true,
   "repository": {
@@ -9,9 +9,9 @@
   "dependencies": {
     "async": "2.0.0",
     "email-addresses": "3.0.3",
-    "remove-markdown": "0.1.0",
     "request": "2.88.0",
     "parse-links": "0.1.0",
+    "password-generator": "2.0.2",
     "underscore": "1.8.3",
     "util": "0.10.3"
   },
