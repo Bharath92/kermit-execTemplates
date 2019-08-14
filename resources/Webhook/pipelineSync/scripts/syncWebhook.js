@@ -20,6 +20,13 @@ function syncWebhook() {
   bag.who = util.format('resources|%s|id:', self.name, bag.resourceId);
   console.log(bag.who, 'Starting');
 
+  process.on('uncaughtException',
+    function (err) {
+      console.log(err.stack);
+      process.exit(1);
+    }
+  );
+
   async.series([
       _getResource.bind(null, bag),
       _postResourceVersion.bind(null, bag)

@@ -59,6 +59,13 @@ function syncWebhook() {
   bag.who = util.format('resources|%s|id:', self.name, bag.resourceId);
   console.log(bag.who, 'Starting');
 
+  process.on('uncaughtException',
+    function (err) {
+      console.log(err.stack);
+      process.exit(1);
+    }
+  );
+
   async.series([
       _getResource.bind(null, bag),
       _getHook.bind(null, bag),
@@ -409,6 +416,7 @@ function _updateHook(bag, next) {
 
 function _checkForResources(bag, next) {
   if (bag.action !== 'delete') return next();
+  if (!bag.hook) return next();
 
   var who = bag.who + '|' + _checkForResources.name;
   console.log(who, 'Inside');
