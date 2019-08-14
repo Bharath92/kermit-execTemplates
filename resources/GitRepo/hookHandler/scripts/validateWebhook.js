@@ -30,6 +30,13 @@ function validateWebhook() {
   bag.who = util.format('hooks|%s|id:', self.name, bag.hookId);
   console.log(bag.who, 'Starting');
 
+  process.on('uncaughtException',
+    function (err) {
+      console.log(err.stack);
+      process.exit(1);
+    }
+  );
+
   async.series([
       _readHeaders.bind(null, bag),
       _readBody.bind(null, bag),
