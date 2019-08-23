@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://jfrog.com/cicd/resources/Webhook.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["Webhook"]
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "webhookName": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "string"
+        }
+      },
+      "required": ["webhookName", "payload"]
+    }
+  },
+  "required": ["name", "type", "configuration"]
+}
