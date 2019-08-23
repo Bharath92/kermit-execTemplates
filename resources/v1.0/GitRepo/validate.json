@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://jfrog.com/cicd/resources/GitRepo.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["GitRepo"]
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gitProvider": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "type": "string",
+              "format": "regex"
+            },
+            "exclude": {
+              "type": "string",
+              "format": "regex"
+            }
+          }
+        },
+        "branches": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "type": "string",
+              "format": "regex"
+            },
+            "exclude": {
+              "type": "string",
+              "format": "regex"
+            }
+          }
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include": {
+              "type": "string",
+              "format": "regex"
+            },
+            "exclude": {
+              "type": "string",
+              "format": "regex"
+            }
+          }
+        },
+        "buildOn": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "commit": {
+              "type": "boolean"
+            },
+            "pullRequestCreate": {
+              "type": "boolean"
+            },
+            "pullRequestClose": {
+              "type": "boolean"
+            },
+            "releaseCreate": {
+              "type": "boolean"
+            },
+            "tagCreate": {
+              "type": "boolean"
+            }
+          }
+        },
+        "shallowDepth": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["gitProvider", "path"]
+    }
+  },
+  "required": ["name", "type", "configuration"]
+}
