@@ -1,3 +1,0 @@
-Invoke-Expression @"
-%%context%%
-"@
