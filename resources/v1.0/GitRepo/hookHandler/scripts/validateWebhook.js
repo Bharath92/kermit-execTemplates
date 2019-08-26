@@ -21,13 +21,14 @@ var validationStrategies = {
 function validateWebhook() {
   var bag = {
     hookId: process.env.hook_id,
+    resourceId: process.env.current_resource_id,
     apiAdapter: new ApiAdapter(process.env.api_token),
     reqHeaders: {},
     reqBody: {},
     isValidWebhook: false
   };
 
-  bag.who = util.format('hooks|%s|id:', self.name, bag.hookId);
+  bag.who = util.format('hooks|%s|resourceId:', self.name, bag.resourceId);
   console.log(bag.who, 'Starting');
 
   process.on('uncaughtException',
